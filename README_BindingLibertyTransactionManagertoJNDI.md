@@ -1,4 +1,4 @@
-#Binding Liberty TransactionManager to JNDI
+# Binding Liberty TransactionManager to JNDI
 The Liberty TransactionManager is not bound into JNDI, but it needs to be for the Geode transaction to commit successfully. See [Troubleshooting](README-Troubleshooting.md) for details on the exception that occurs because of this.
 
 This doc describes how to bind an arbitrary object to JNDI:

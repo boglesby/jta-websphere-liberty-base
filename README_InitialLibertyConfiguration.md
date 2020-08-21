@@ -1,10 +1,10 @@
-#Initial Liberty Configuration
+# Initial Liberty Configuration
 I configured the instance using this documentation:
 
 ```
 https://www.midvisioncloud.com/ibm-websphere-on-amazon-web-services/ibm-websphere-liberty-profile-edition-aws/
 ```
-##Connect to Instance
+## Connect to Instance
 Connect to the instance using ssh like:
 
 ```
@@ -26,7 +26,7 @@ Welcome to
         * Support: http://support.midvision.com/redmine/projects/devtestcloud
         * Forum:   https://www.midvisioncloud.com/community
 ```
-##First Logon
+## Initial Logon
 The first time I connected, I was taken through Liberty configuration:
 
 - mvadmin admin password
@@ -65,7 +65,7 @@ Type 'menu' to launch IBM WebSphere Liberty Profile menu.
 
 http://ec2-35-182-54-185.ca-central-1.compute.amazonaws.com:9090/MidVision/ui/public/welcome.xhtml
 ```
-##Change Public IP Address
+## Change Public IP Address
 Change the default IP address from localhost to the actual IP address.
 
 ```
@@ -103,7 +103,7 @@ Please select from list
  x. Quit
 >
 ```
-##Bounce Liberty
+## Bounce Liberty
 Stop and start Liberty using the menu like:
 
 ```

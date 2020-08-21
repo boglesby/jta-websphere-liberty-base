@@ -1,4 +1,4 @@
-#Apache Geode Spring Boot JTA Application on WebSphere Liberty 20.0.0.5
+# Apache Geode Spring Boot JTA Application on WebSphere Liberty 20.0.0.5
 This example shows how to configure an Apache Geode Spring Boot JTA Application to run on WebSphere Liberty 20.0.0.5.
 
 Follow the steps below to create an Apache Geode Spring Boot ear file and deploy it on WebSphere Liberty 20.0.0.5

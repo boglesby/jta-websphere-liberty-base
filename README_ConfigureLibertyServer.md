@@ -1,6 +1,6 @@
-#Configure Liberty Server
+# Configure Liberty Server
 
-##server.xml File
+## server.xml File
 The Liberty server is configured mainly through the `server.xml` file. It defines all the elements of the server and the applications deployed to it.
 
 For the defaultServer server, it is located here:
@@ -59,8 +59,8 @@ The `server.xml` file for this application is:
 
 </server>
 ```
-##server.xml Contents
-###Feature Manager
+## server.xml Contents
+### Feature Manager
 The `featureManager` element describes the features enabled in the Liberty server.
 
 I configured these features to configure JNDI, JCA and Web support:
@@ -77,7 +77,7 @@ This installed these features:
 ```
 [AUDIT   ] CWWKF0012I: The server installed the following features: [appSecurity-2.0, appSecurity-3.0, beanValidation-2.0, cdi-2.0, distributedMap-1.0, ejbLite-3.2, jaspic-1.1, jaxrs-2.1, jaxrsClient-2.1, jca-1.7, jdbc-4.2, jndi-1.0, jpa-2.2, jpaContainer-2.2, jsf-2.3, jsonb-1.0, jsonp-1.1, managedBeans-1.0, servlet-4.0, ssl-1.0, webProfile-8.0, websocket-1.1].
 ```
-###Transaction
+### Transaction
 The `transaction` element configures the transaction manager.
 
 ```
@@ -93,7 +93,7 @@ This doc sescribes the `acceptHeuristicHazard` property:
 Select this option to specify that all applications on this server accept the possibility of a heuristic hazard occurring in a two-phase transaction that contains a one-phase resource. This setting configures last participant support (LPS) for the server. If you do not select this option, you must configure applications individually to accept the heuristic hazard.
 ```
 
-###Library
+### Library
 The `library` element defines shared libraries.
 
 In this case, there are two, namely H2 and a customer ObjectFactory that maps the TransactionManager to JNDI for Geode's JNDIInvoker to find.
@@ -107,7 +107,7 @@ In this case, there are two, namely H2 and a customer ObjectFactory that maps th
   <fileset dir="/home/midvision/deploy/lib" includes="objectfactory-0.0.1-SNAPSHOT.jar"/>   
 </library>
 ```
-###DataSource
+### DataSource
 The `dataSource` element configures the JDBC DataSource. Several databases have custom configuration, but depending on the docs I read (and code I looked at), I didn't see custom configuration for H2.
 
 This doc describes configuring the `dataSource`:
@@ -141,7 +141,7 @@ javax.sql.ConnectionPoolDataSource
 javax.sql.DataSource
 javax.sql.XADataSource
 ```
-###JNDI
+### JNDI
 The `jndiObjectFactory` element defines an ObjectFactory (in this case a `TransactionManagerObjectFactory`) that returns an object of a specific type. The `jndiReferenceEntry` binds the object returned from that ObjectFactory to a JNDI name (in this case `javax.transaction.TransactionManager`).
 
 This doc describes configuring the `jndiObjectFactory` and `jndiReferenceEntry`:
@@ -153,7 +153,7 @@ This doc describes configuring the `jndiObjectFactory` and `jndiReferenceEntry`:
 
 <jndiReferenceEntry id="refEntry" jndiName="javax.transaction.TransactionManager" factoryRef="objectFactory"/>
 ```
-###Application
+### Application
 The `application` element configures the application location (ear file) and name. When the ear file is dropped in that directory, it is automatically redeployed.
 
 It also associates the Geode JCA Resource Adapter. This doc describes configuring the `resourceAdapter`:
@@ -165,7 +165,7 @@ It also associates the Geode JCA Resource Adapter. This doc describes configurin
   <resourceAdapter id="geode-jca-9.10.2" alias="gemfireJCA"/> 
 </application>
 ```
-###Connection Factory
+### Connection Factory
 The `connectionFactory` element binds the Geode JCA Resource Adapter with a JNDI name.
 
 This doc describes configuring the `connectionFactory`:
@@ -177,7 +177,7 @@ This doc describes configuring the `connectionFactory`:
   <properties.jta-websphere-liberty.gemfireJCA ProductName="GemFire" UserName="" Version="8.0"/>
 </connectionFactory>
 ```
-###Logging
+### Logging
 The logging element configures `trace` logging. Some configuration is based on package/class structure (e.g. com.ibm.ejs). Some is custom.
 
 ```

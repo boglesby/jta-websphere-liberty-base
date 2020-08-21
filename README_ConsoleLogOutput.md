@@ -1,9 +1,9 @@
-#Console Log Output
+# Console Log Output
 Here is `console.log` output from several tests.
 
 Note: All of the stacks below are from logging messages. They are not exceptions.
 
-##Client Application
+## Client Application
 The `console.log` output below is from running the Client application which currently creates and saves a single Trade.
 
 ```
@@ -865,9 +865,9 @@ java.lang.Exception
 
 [info 2020/08/20 20:45:27.360 UTC <Default Executor-thread-3> tid=0x1f] Retrieved 1 trades from Geode repository in 41 ms
 ```
-##Run Test1 and Test2
-###Curl Commands
-####Test1
+## Run Test1 and Test2
+### Curl Commands
+#### Test1
 Run Test1 using this curl command:
 
 ```
@@ -878,7 +878,7 @@ Output like this will be logged after 15 seconds:
 ```
 {"timestamp":"2020-08-20T20:54:18.998+0000","status":500,"error":"Internal Server Error","message":"","path":"/jta-websphere-liberty/geodetest1/0"}
 ```
-####Test2
+#### Test2
 Run Test1 using this curl command:
 
 ```
@@ -891,8 +891,8 @@ Geode Test2
 Updating trade=Trade[id=0; cusip=LLY; shares=77; price=69.56]
 Updated trade=Trade[id=0; cusip=LLY; shares=77; price=517.42]
 ```
-###Output
-####Test1 Starts and Sleeps
+### Output
+#### Test1 Starts and Sleeps
 
 ```
 [info 2020/08/20 20:54:03.485 UTC <Default Executor-thread-201> tid=0x252] Initializing Servlet 'dispatcherServlet'
@@ -1040,7 +1040,7 @@ java.lang.Exception: JCAManagedConnection.init
 
 [info 2020/08/20 20:54:03.668 UTC <Default Executor-thread-201> tid=0x252] Geode Test1 about to sleep for 15000 milliseconds before committing
 ```
-####Test2 Runs and Completes Successfully
+#### Test2 Runs and Completes Successfully
 
 ```
 [trace 2020/08/20 20:54:09.747 UTC <Default Executor-thread-204> tid=0x255] Bound value [org.springframework.orm.jpa.EntityManagerHolder@11c1fcdf] for key [org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean@6e376a83] to thread [Default Executor-thread-204]
@@ -1234,7 +1234,7 @@ java.lang.Exception
 
 [trace 2020/08/20 20:54:09.830 UTC <Default Executor-thread-204> tid=0x255] Removed value [org.springframework.orm.jpa.EntityManagerHolder@11c1fcdf] for key [org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean@6e376a83] from thread [Default Executor-thread-204]
 ```
-####Test1 Continues and Fails
+#### Test1 Continues and Fails
 
 ```
 [info 2020/08/20 20:54:18.668 UTC <Default Executor-thread-201> tid=0x252] Geode Test1 woke up

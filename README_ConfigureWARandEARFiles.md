@@ -1,5 +1,5 @@
-#Configure WAR and EAR Files
-##WAR File
+# Configure WAR and EAR Files
+## WAR File
 I built the Spring Boot war file initially using:
 
 ```
@@ -150,7 +150,7 @@ jar -cvf jta-websphere-liberty.war .
 ```
 Note: See [Troubleshooting](README_Troubleshooting.md) for the exception that caused me to remove the logging jars.
 
-##EAR File
+## EAR File
 The ear file contains:
 
 - the geode-jca-9.10.2.rar file
@@ -164,7 +164,7 @@ I created it by script in the ear directory like:
 cp ../unpacked-war/jta-websphere-liberty.war .
 jar -cvf jta-websphere-liberty.ear .
 ```
-###geode-jca-9.10.2.rar
+### geode-jca-9.10.2.rar
 The rar file contains the Resource Adapter which defines the Geode JCA classes.
 
 The WebSphere Liberty `ra.xml` file should look like:
@@ -216,7 +216,7 @@ The WebSphere Liberty `ra.xml` file should look like:
 ```
 Note: See [Troubleshooting](README_Troubleshooting.md) for the exception that occurred attempting to deploy the `geode-jca-9.10.2.rar` file contained in the Geode product lib directory.
 
-###lib Directory
+### lib Directory
 The lib directory contains all the jars referenced in the geode-dependencies.jar MANIFEST:
 
 ```
@@ -314,7 +314,7 @@ swagger-annotations-1.5.23.jar
 ```
 I am not at all sure if all of these jars need to be in the ear lib directory. This is what I did, though.
 
-###application.xml
+### application.xml
 I used this `application.xml` file:
 
 ```

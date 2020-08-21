@@ -1,248 +1,5 @@
-#Troubleshooting
-##Logging
-Originally, the war file contained these logging jars:
-
-```
-jul-to-slf4j-1.7.30.jar
-log4j-api-2.13.2.jar
-log4j-to-slf4j-2.13.2.jar
-slf4j-api-1.7.30.jar
-```
-And the ear file contained these logging jars:
-
-```
-log4j-api-2.12.1.jar
-log4j-core-2.12.1.jar
-log4j-jcl-2.12.1.jar
-log4j-jul-2.12.1.jar
-log4j-slf4j-impl-2.12.1.jar
-slf4j-api-1.7.28.jar
-```
-The `console.log` showed these messages:
-
-```
-[8/12/20 18:03:42:368 UTC] 000005c7 com.ibm.ws.logging.internal.impl.IncidentImpl                I FFDC1015I: An FFDC Incident has been created: "java.util.ServiceConfigurationError: Error instantiating :org.springframework.data.gemfire.repository.cdi.GemfireRepositoryExtension com.ibm.ws.container.service.state.internal.ApplicationStateManager 54" at ffdc_20.08.12_18.03.42.2.log
-[8/12/20 18:03:42:445 UTC] 000005c7 com.ibm.ws.logging.internal.impl.IncidentImpl                I FFDC1015I: An FFDC Incident has been created: "com.ibm.ws.container.service.state.StateChangeException: java.util.ServiceConfigurationError: Error instantiating :org.springframework.data.gemfire.repository.cdi.GemfireRepositoryExtension com.ibm.ws.app.manager.module.internal.SimpleDeployedAppInfoBase 548" at ffdc_20.08.12_18.03.42.3.log
-[8/12/20 18:03:42:450 UTC] 000005c7 ws.app.manager.connector.internal.ConnectorModuleHandlerImpl A J2CA7009I: The resource adapter jta-websphere-liberty.geode-jca-9.10.2 has uninstalled successfully.
-[8/12/20 18:03:42:452 UTC] 000005c7 om.ibm.ws.app.manager.ear.internal.EARApplicationHandlerImpl E CWWKZ0106E: Could not start web application jta-websphere-liberty.
-[8/12/20 18:03:42:452 UTC] 000005c7 com.ibm.ws.app.manager.AppMessageHelper                      E CWWKZ0002E: An exception occurred while starting the application jta-websphere-liberty. The exception message was: com.ibm.ws.container.service.state.StateChangeException: java.util.ServiceConfigurationError: Error instantiating :org.springframework.data.gemfire.repository.cdi.GemfireRepositoryExtension
-```
-The IncidentImpl logs above show where the ffdc log is generated.
-
-In this case, the /opt/IBM/WebSphere/Liberty/usr/servers/defaultServer/logs/ffdc/ffdc_20.08.12_18.03.42.3.log showed:
-
-```
-Stack Dump = com.ibm.ws.container.service.state.StateChangeException: java.util.ServiceConfigurationError: Error instantiating :org.springframework.data.gemfire.repository.cdi.GemfireRepositoryExtension
-	at com.ibm.ws.container.service.state.internal.ApplicationStateManager.fireStarting(ApplicationStateManager.java:55)
-	at com.ibm.ws.container.service.state.internal.StateChangeServiceImpl.fireApplicationStarting(StateChangeServiceImpl.java:50)
-	at com.ibm.ws.app.manager.module.internal.SimpleDeployedAppInfoBase.preDeployApp(SimpleDeployedAppInfoBase.java:547)
-	at com.ibm.ws.app.manager.module.internal.SimpleDeployedAppInfoBase.installApp(SimpleDeployedAppInfoBase.java:508)
-	at com.ibm.ws.app.manager.module.internal.DeployedAppInfoBase.deployApp(DeployedAppInfoBase.java:347)
-	at com.ibm.ws.app.manager.ear.internal.EARApplicationHandlerImpl.install(EARApplicationHandlerImpl.java:76)
-	at com.ibm.ws.app.manager.internal.statemachine.StartAction.execute(StartAction.java:144)
-	at com.ibm.ws.app.manager.internal.statemachine.ApplicationStateMachineImpl.enterState(ApplicationStateMachineImpl.java:1295)
-	at com.ibm.ws.app.manager.internal.statemachine.ApplicationStateMachineImpl.performAction(ApplicationStateMachineImpl.java:1142)
-	at com.ibm.ws.app.manager.internal.statemachine.ApplicationStateMachineImpl.run(ApplicationStateMachineImpl.java:894)
-	at com.ibm.ws.threading.internal.ExecutorServiceImpl$RunnableWrapper.run(ExecutorServiceImpl.java:239)
-	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1149)
-	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:624)
-	at java.lang.Thread.run(Thread.java:748)
-Caused by: java.util.ServiceConfigurationError: Error instantiating :org.springframework.data.gemfire.repository.cdi.GemfireRepositoryExtension
-	at org.jboss.weld.util.ServiceLoader.createInstance(ServiceLoader.java:315)
-	at org.jboss.weld.util.ServiceLoader.prepareInstance(ServiceLoader.java:247)
-	at org.jboss.weld.util.ServiceLoader.loadService(ServiceLoader.java:215)
-	at org.jboss.weld.util.ServiceLoader.loadServiceFile(ServiceLoader.java:185)
-	at org.jboss.weld.util.ServiceLoader.reload(ServiceLoader.java:165)
-	at org.jboss.weld.util.ServiceLoader.iterator(ServiceLoader.java:289)
-	at com.ibm.ws.cdi.impl.weld.WebSphereCDIDeploymentImpl.getExtensions(WebSphereCDIDeploymentImpl.java:469)
-	at com.ibm.ws.cdi.impl.CDIContainerImpl.startInitialization(CDIContainerImpl.java:144)
-	at com.ibm.ws.cdi.liberty.CDIRuntimeImpl.applicationStarting(CDIRuntimeImpl.java:453)
-	at com.ibm.ws.container.service.state.internal.ApplicationStateManager.fireStarting(ApplicationStateManager.java:51)
-	... 13 more
-Caused by: java.lang.ExceptionInInitializerError
-	at sun.reflect.NativeConstructorAccessorImpl.newInstance0(Native Method)
-	at sun.reflect.NativeConstructorAccessorImpl.newInstance(NativeConstructorAccessorImpl.java:62)
-	at sun.reflect.DelegatingConstructorAccessorImpl.newInstance(DelegatingConstructorAccessorImpl.java:45)
-	at java.lang.reflect.Constructor.newInstance(Constructor.java:423)
-	at org.jboss.weld.util.ServiceLoader.createInstance(ServiceLoader.java:313)
-	... 22 more
-Caused by: org.apache.logging.log4j.LoggingException: log4j-slf4j-impl cannot be present with log4j-to-slf4j
-	at org.apache.logging.slf4j.Log4jLoggerFactory.validateContext(Log4jLoggerFactory.java:49)
-	at org.apache.logging.slf4j.Log4jLoggerFactory.newLogger(Log4jLoggerFactory.java:39)
-	at org.apache.logging.slf4j.Log4jLoggerFactory.newLogger(Log4jLoggerFactory.java:30)
-	at org.apache.logging.log4j.spi.AbstractLoggerAdapter.getLogger(AbstractLoggerAdapter.java:54)
-	at org.apache.logging.slf4j.Log4jLoggerFactory.getLogger(Log4jLoggerFactory.java:30)
-	at org.slf4j.LoggerFactory.getLogger(LoggerFactory.java:358)
-	at org.slf4j.LoggerFactory.getLogger(LoggerFactory.java:383)
-	at org.springframework.data.repository.cdi.CdiRepositoryExtensionSupport.<clinit>(CdiRepositoryExtensionSupport.java:54)
-	... 27 more
-```
-I tried these things:
-
-- Remove logging jars from the ear
-- Remove just the log4j-slf4j-impl-2.12.1.jar from the ear
-- Remove just the log4j-to-slf4j-2.13.2.jar from the war
-- Remove all logging jars from the war
-
-###Remove logging jars from the ear
-
-No Geode logging appeared with this change.
-
-It also caused:
-
-```
-Caused by: java.lang.NoClassDefFoundError: Could not initialize class org.apache.geode.internal.cache.GemFireCacheImpl
-	at org.apache.geode.cache.client.ClientCacheFactory.getInternalClientCache(ClientCacheFactory.java:221) ~[geode-core-1.12.0.jar:na]
-	at org.apache.geode.cache.client.ClientCacheFactory.getAnyInstance(ClientCacheFactory.java:668) ~[geode-core-1.12.0.jar:na]
-	at org.springframework.data.gemfire.util.CacheUtils.getClientCache(CacheUtils.java:165) ~[spring-data-geode-2.3.0.RELEASE.jar:2.3.0.RELEASE]
-	at org.springframework.data.gemfire.util.CacheUtils.resolveGemFireCache(CacheUtils.java:173) ~[spring-data-geode-2.3.0.RELEASE.jar:2.3.0.RELEASE]
-	at org.springframework.geode.boot.autoconfigure.RegionTemplateAutoConfiguration.handlePrematureCacheCreation(RegionTemplateAutoConfiguration.java:269) ~[spring-geode-autoconfigure-1.3.0.RELEASE.jar:1.3.0.RELEASE]
-	at org.springframework.geode.boot.autoconfigure.RegionTemplateAutoConfiguration.regionTemplateBeanPostProcessor(RegionTemplateAutoConfiguration.java:222) ~[spring-geode-autoconfigure-1.3.0.RELEASE.jar:1.3.0.RELEASE]
-	at org.springframework.geode.boot.autoconfigure.RegionTemplateAutoConfiguration$$EnhancerBySpringCGLIB$$5fe09191.CGLIB$regionTemplateBeanPostProcessor$1(<generated>) ~[spring-geode-autoconfigure-1.3.0.RELEASE.jar:1.3.0.RELEASE]
-	at org.springframework.geode.boot.autoconfigure.RegionTemplateAutoConfiguration$$EnhancerBySpringCGLIB$$5fe09191$$FastClassBySpringCGLIB$$a818a27c.invoke(<generated>) ~[spring-geode-autoconfigure-1.3.0.RELEASE.jar:1.3.0.RELEASE]
-	at org.springframework.cglib.proxy.MethodProxy.invokeSuper(MethodProxy.java:244) ~[spring-core-5.2.6.RELEASE.jar:5.2.6.RELEASE]
-	at org.springframework.context.annotation.ConfigurationClassEnhancer$BeanMethodInterceptor.intercept(ConfigurationClassEnhancer.java:331) ~[spring-context-5.2.6.RELEASE.jar:5.2.6.RELEASE]
-	at org.springframework.geode.boot.autoconfigure.RegionTemplateAutoConfiguration$$EnhancerBySpringCGLIB$$5fe09191.regionTemplateBeanPostProcessor(<generated>) ~[spring-geode-autoconfigure-1.3.0.RELEASE.jar:1.3.0.RELEASE]
-```
-###Remove just the log4j-slf4j-impl-2.12.1.jar from the ear:
-
-This caused:
-
-```
-Caused by: java.lang.ClassCastException: org.apache.logging.slf4j.SLF4JLogger cannot be cast to org.apache.logging.log4j.core.Logger
-	at org.apache.geode.logging.log4j.internal.impl.Log4jLoggingProvider.getRootLoggerContext(Log4jLoggingProvider.java:105)
-	at org.apache.geode.logging.log4j.internal.impl.Log4jLoggingProvider.getConfiguration(Log4jLoggingProvider.java:109)
-	at org.apache.geode.logging.log4j.internal.impl.Log4jLoggingProvider.isUsingGemFireDefaultConfig(Log4jLoggingProvider.java:94)
-	at org.apache.geode.logging.log4j.internal.impl.Log4jLoggingProvider.shouldUpdateLogLevels(Log4jLoggingProvider.java:143)
-	at org.apache.geode.logging.log4j.internal.impl.Log4jLoggingProvider.configure(Log4jLoggingProvider.java:121)
-	at org.apache.geode.logging.internal.Configuration.configChanged(Configuration.java:143)
-	at org.apache.geode.logging.internal.Configuration.initialize(Configuration.java:132)
-	at org.apache.geode.logging.internal.LoggingSession.createSession(LoggingSession.java:69)
-	at org.apache.geode.distributed.internal.InternalDistributedSystem.initialize(InternalDistributedSystem.java:704)
-	at org.apache.geode.distributed.internal.InternalDistributedSystem.access$200(InternalDistributedSystem.java:135)
-	at org.apache.geode.distributed.internal.InternalDistributedSystem$Builder.build(InternalDistributedSystem.java:3036)
-	at org.apache.geode.distributed.internal.InternalDistributedSystem.connectInternal(InternalDistributedSystem.java:290)
-	at org.apache.geode.distributed.internal.InternalDistributedSystem.connectInternal(InternalDistributedSystem.java:216)
-	at org.apache.geode.cache.client.ClientCacheFactory.connectInternalDistributedSystem(ClientCacheFactory.java:280)
-	at org.apache.geode.cache.client.ClientCacheFactory.basicCreate(ClientCacheFactory.java:250)
-	at org.apache.geode.cache.client.ClientCacheFactory.create(ClientCacheFactory.java:216)
-	at org.springframework.data.gemfire.client.ClientCacheFactoryBean.createCache(ClientCacheFactoryBean.java:397)
-	at org.springframework.data.gemfire.CacheFactoryBean.resolveCache(CacheFactoryBean.java:321)
-	at org.springframework.data.gemfire.CacheFactoryBean.init(CacheFactoryBean.java:267)
-```
-###Remove just the log4j-to-slf4j-2.13.2.jar from the war:
-
-This caused:
-
-```
-[8/12/20 21:57:03:136 UTC] 00000316 com.ibm.ws.logging.internal.impl.IncidentImpl                I FFDC1015I: An FFDC Incident has been created: "java.lang.IllegalArgumentException: LoggerFactory is not a Logback LoggerContext but Logback is on the classpath. Either remove Logback or the competing implementation (class org.apache.logging.slf4j.Log4jLoggerFactory loaded from file:/opt/IBM/WebSphere/Liberty/usr/servers/defaultServer/apps/expanded/jta-websphere-liberty.ear/lib/log4j-slf4j-impl-2.12.1.jar). If you are using WebLogic you will need to add 'org.slf4j' to prefer-application-packages in WEB-INF/weblogic.xml: org.apache.logging.slf4j.Log4jLoggerFactory com.ibm.ws.webcontainer.osgi.DynamicVirtualHost startWebApp" at ffdc_20.08.12_21.57.03.0.log
-```
-###Remove all logging jars from the war:
-
-This worked, but it only shows Geode log messages and not SB log messages.
-
-##Product geode-jca-1.12.0.rar file
-The contents of the `ra.xml` in the `geode-jca-1.12.0.rar` contained in the Geode product tree is not formatted correctly.
-
-That rar file looks like:
-
-```
-<?xml version="1.0" encoding="UTF-8"?>
-<!--
-  Licensed to the Apache Software Foundation (ASF) under one or more
-  contributor license agreements.  See the NOTICE file distributed with
-  this work for additional information regarding copyright ownership.
-  The ASF licenses this file to You under the Apache License, Version 2.0
-  (the "License"); you may not use this file except in compliance with
-  the License.  You may obtain a copy of the License at
-
-       http://www.apache.org/licenses/LICENSE-2.0
-
-  Unless required by applicable law or agreed to in writing, software
-  distributed under the License is distributed on an "AS IS" BASIS,
-  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-  See the License for the specific language governing permissions and
-  limitations under the License.
--->
-
-<!DOCTYPE connector PUBLIC '-//Sun Microsystems, Inc.//DTD Connector 1.0//EN' 'http://java.sun.com/j2ee/dtds/connector_1_0.dtd'>
-
-<connector>
-    <display-name>GFE JCA Adaptor</display-name>
-    <vendor-name></vendor-name>
-    <spec-version>1.5</spec-version>
-    <eis-type>GFE JCA</eis-type>
-    <version>1.5</version>
-    <resourceadapter>
-        <managedconnectionfactory-class>org.apache.geode.internal.ra.spi.JCAManagedConnectionFactory</managedconnectionfactory-class>
-                <config-property>
-                    <config-property-name>ProductName</config-property-name>
-                    <config-property-type>java.lang.String</config-property-type>
-                    <config-property-value>GemFire</config-property-value>
-                </config-property>
-                <config-property>
-                    <config-property-name>UserName</config-property-name>
-                    <config-property-type>java.lang.String</config-property-type>
-                    <config-property-value/>
-                </config-property>
-                <config-property>
-                    <config-property-name>Version</config-property-name>
-                    <config-property-type>java.lang.String</config-property-type>
-                    <config-property-value>8.0</config-property-value>
-                </config-property>
-        
-        <connectionfactory-interface>org.apache.geode.ra.GFConnectionFactory</connectionfactory-interface>
-        <connectionfactory-impl-class>org.apache.geode.internal.ra.GFConnectionFactoryImpl</connectionfactory-impl-class>
-        <connection-interface>org.apache.geode.ra.GFConnection</connection-interface>
-        <connection-impl-class>org.apache.geode.internal.ra.GFConnectionImpl</connection-impl-class>
-        <transaction-support>LocalTransaction</transaction-support>
-        <reauthentication-support>false</reauthentication-support> 
-    </resourceadapter>
-</connector>
-```
-It produced this exception:
-
-```
-[ERROR   ] CWWKZ0114E: Application jta-websphere-liberty encountered an error when accessing the contents of module /geode-jca-9.10.2.rar of type connector: com.ibm.wsspi.adaptable.module.UnableToAdaptException: javax.xml.bind.UnmarshalException
- - with linked exception:
-[org.xml.sax.SAXParseExceptionpublicId: -//Sun Microsystems, Inc.//DTD Connector 1.0//EN; systemId: http://www.oracle.com/webfolder/technetwork/jsc/j2ee/dtds/connector_1_0.dtd; lineNumber: 1; columnNumber: 1; The markup declarations contained or pointed to by the document type declaration must be well-formed.]
-	at com.ibm.ws.jca.internal.ConnectorAdapter.adapt(ConnectorAdapter.java:107)
-	at [internal classes]
-Caused by: javax.xml.bind.UnmarshalException
- - with linked exception:
-[org.xml.sax.SAXParseExceptionpublicId: -//Sun Microsystems, Inc.//DTD Connector 1.0//EN; systemId: http://www.oracle.com/webfolder/technetwork/jsc/j2ee/dtds/connector_1_0.dtd; lineNumber: 1; columnNumber: 1; The markup declarations contained or pointed to by the document type declaration must be well-formed.]
-	at javax.xml.bind.helpers.AbstractUnmarshallerImpl.createUnmarshalException(AbstractUnmarshallerImpl.java:335)
-	at com.sun.xml.internal.bind.v2.runtime.unmarshaller.UnmarshallerImpl.createUnmarshalException(UnmarshallerImpl.java:563)
-	at com.sun.xml.internal.bind.v2.runtime.unmarshaller.UnmarshallerImpl.unmarshal0(UnmarshallerImpl.java:249)
-	at com.sun.xml.internal.bind.v2.runtime.unmarshaller.UnmarshallerImpl.unmarshal(UnmarshallerImpl.java:214)
-	at javax.xml.bind.helpers.AbstractUnmarshallerImpl.unmarshal(AbstractUnmarshallerImpl.java:140)
-	at javax.xml.bind.helpers.AbstractUnmarshallerImpl.unmarshal(AbstractUnmarshallerImpl.java:123)
-	at com.ibm.ws.jca.utils.metagen.DeploymentDescriptorParser.parseResourceAdapterXml(DeploymentDescriptorParser.java:178)
-	... 1 more
-Caused by: org.xml.sax.SAXParseExceptionpublicId: -//Sun Microsystems, Inc.//DTD Connector 1.0//EN; systemId: http://www.oracle.com/webfolder/technetwork/jsc/j2ee/dtds/connector_1_0.dtd; lineNumber: 1; columnNumber: 1; The markup declarations contained or pointed to by the document type declaration must be well-formed.
-	at com.sun.org.apache.xerces.internal.util.ErrorHandlerWrapper.createSAXParseException(ErrorHandlerWrapper.java:203)
-	at com.sun.org.apache.xerces.internal.util.ErrorHandlerWrapper.fatalError(ErrorHandlerWrapper.java:177)
-	at com.sun.org.apache.xerces.internal.impl.XMLErrorReporter.reportError(XMLErrorReporter.java:400)
-	at com.sun.org.apache.xerces.internal.impl.XMLErrorReporter.reportError(XMLErrorReporter.java:327)
-	at com.sun.org.apache.xerces.internal.impl.XMLScanner.reportFatalError(XMLScanner.java:1473)
-	at com.sun.org.apache.xerces.internal.impl.XMLDTDScannerImpl.scanDecls(XMLDTDScannerImpl.java:2070)
-	at com.sun.org.apache.xerces.internal.impl.XMLDTDScannerImpl.scanDTDExternalSubset(XMLDTDScannerImpl.java:307)
-	at com.sun.org.apache.xerces.internal.impl.XMLDocumentScannerImpl$DTDDriver.dispatch(XMLDocumentScannerImpl.java:1174)
-	at com.sun.org.apache.xerces.internal.impl.XMLDocumentScannerImpl$DTDDriver.next(XMLDocumentScannerImpl.java:1045)
-	at com.sun.org.apache.xerces.internal.impl.XMLDocumentScannerImpl$PrologDriver.next(XMLDocumentScannerImpl.java:959)
-	at com.sun.org.apache.xerces.internal.impl.XMLDocumentScannerImpl.next(XMLDocumentScannerImpl.java:602)
-	at com.sun.org.apache.xerces.internal.impl.XMLNSDocumentScannerImpl.next(XMLNSDocumentScannerImpl.java:112)
-	at com.sun.org.apache.xerces.internal.impl.XMLDocumentFragmentScannerImpl.scanDocument(XMLDocumentFragmentScannerImpl.java:505)
-	at com.sun.org.apache.xerces.internal.parsers.XML11Configuration.parse(XML11Configuration.java:842)
-	at com.sun.org.apache.xerces.internal.parsers.XML11Configuration.parse(XML11Configuration.java:771)
-	at com.sun.org.apache.xerces.internal.parsers.XMLParser.parse(XMLParser.java:141)
-	at com.sun.org.apache.xerces.internal.parsers.AbstractSAXParser.parse(AbstractSAXParser.java:1213)
-	at com.sun.org.apache.xerces.internal.jaxp.SAXParserImpl$JAXPSAXParser.parse(SAXParserImpl.java:643)
-	at org.xml.sax.helpers.XMLFilterImpl.parse(XMLFilterImpl.java:357)
-	at com.sun.xml.internal.bind.v2.runtime.unmarshaller.UnmarshallerImpl.unmarshal0(UnmarshallerImpl.java:243)
-	... 5 more
-```
-##LocalTransactionException
+# Troubleshooting
+## LocalTransactionException
 If the TransactionManager is not bound into JNDI, a LocalTransactionException like this will be thrown attempting to commit the transaction:
 
 ```
@@ -394,3 +151,246 @@ If I change JNDIInvoker to look for the com.ibm.tx.jta.TransactionManagerFactory
 [warn 2020/08/20 20:45:26.925 UTC <Default Executor-thread-3> tid=0x1f] JCALocalTransaction.begin done begin tid=TXId: ip-172-31-13-92(SpringBasedCacheClientApplication:485141:loner):51412:1d6c9e0d:SpringBasedCacheClientApplication:1
 ```
 There is another way to address this without changing Geode. See [Binding Liberty Transaction Manager to JNDI](README_BindingLibertyTransactionManagertoJNDI.md) for details.
+## Logging
+Originally, the war file contained these logging jars:
+
+```
+jul-to-slf4j-1.7.30.jar
+log4j-api-2.13.2.jar
+log4j-to-slf4j-2.13.2.jar
+slf4j-api-1.7.30.jar
+```
+And the ear file contained these logging jars:
+
+```
+log4j-api-2.12.1.jar
+log4j-core-2.12.1.jar
+log4j-jcl-2.12.1.jar
+log4j-jul-2.12.1.jar
+log4j-slf4j-impl-2.12.1.jar
+slf4j-api-1.7.28.jar
+```
+The `console.log` showed these messages:
+
+```
+[8/12/20 18:03:42:368 UTC] 000005c7 com.ibm.ws.logging.internal.impl.IncidentImpl                I FFDC1015I: An FFDC Incident has been created: "java.util.ServiceConfigurationError: Error instantiating :org.springframework.data.gemfire.repository.cdi.GemfireRepositoryExtension com.ibm.ws.container.service.state.internal.ApplicationStateManager 54" at ffdc_20.08.12_18.03.42.2.log
+[8/12/20 18:03:42:445 UTC] 000005c7 com.ibm.ws.logging.internal.impl.IncidentImpl                I FFDC1015I: An FFDC Incident has been created: "com.ibm.ws.container.service.state.StateChangeException: java.util.ServiceConfigurationError: Error instantiating :org.springframework.data.gemfire.repository.cdi.GemfireRepositoryExtension com.ibm.ws.app.manager.module.internal.SimpleDeployedAppInfoBase 548" at ffdc_20.08.12_18.03.42.3.log
+[8/12/20 18:03:42:450 UTC] 000005c7 ws.app.manager.connector.internal.ConnectorModuleHandlerImpl A J2CA7009I: The resource adapter jta-websphere-liberty.geode-jca-9.10.2 has uninstalled successfully.
+[8/12/20 18:03:42:452 UTC] 000005c7 om.ibm.ws.app.manager.ear.internal.EARApplicationHandlerImpl E CWWKZ0106E: Could not start web application jta-websphere-liberty.
+[8/12/20 18:03:42:452 UTC] 000005c7 com.ibm.ws.app.manager.AppMessageHelper                      E CWWKZ0002E: An exception occurred while starting the application jta-websphere-liberty. The exception message was: com.ibm.ws.container.service.state.StateChangeException: java.util.ServiceConfigurationError: Error instantiating :org.springframework.data.gemfire.repository.cdi.GemfireRepositoryExtension
+```
+The IncidentImpl logs above show where the ffdc log is generated.
+
+In this case, the /opt/IBM/WebSphere/Liberty/usr/servers/defaultServer/logs/ffdc/ffdc_20.08.12_18.03.42.3.log showed:
+
+```
+Stack Dump = com.ibm.ws.container.service.state.StateChangeException: java.util.ServiceConfigurationError: Error instantiating :org.springframework.data.gemfire.repository.cdi.GemfireRepositoryExtension
+	at com.ibm.ws.container.service.state.internal.ApplicationStateManager.fireStarting(ApplicationStateManager.java:55)
+	at com.ibm.ws.container.service.state.internal.StateChangeServiceImpl.fireApplicationStarting(StateChangeServiceImpl.java:50)
+	at com.ibm.ws.app.manager.module.internal.SimpleDeployedAppInfoBase.preDeployApp(SimpleDeployedAppInfoBase.java:547)
+	at com.ibm.ws.app.manager.module.internal.SimpleDeployedAppInfoBase.installApp(SimpleDeployedAppInfoBase.java:508)
+	at com.ibm.ws.app.manager.module.internal.DeployedAppInfoBase.deployApp(DeployedAppInfoBase.java:347)
+	at com.ibm.ws.app.manager.ear.internal.EARApplicationHandlerImpl.install(EARApplicationHandlerImpl.java:76)
+	at com.ibm.ws.app.manager.internal.statemachine.StartAction.execute(StartAction.java:144)
+	at com.ibm.ws.app.manager.internal.statemachine.ApplicationStateMachineImpl.enterState(ApplicationStateMachineImpl.java:1295)
+	at com.ibm.ws.app.manager.internal.statemachine.ApplicationStateMachineImpl.performAction(ApplicationStateMachineImpl.java:1142)
+	at com.ibm.ws.app.manager.internal.statemachine.ApplicationStateMachineImpl.run(ApplicationStateMachineImpl.java:894)
+	at com.ibm.ws.threading.internal.ExecutorServiceImpl$RunnableWrapper.run(ExecutorServiceImpl.java:239)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1149)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:624)
+	at java.lang.Thread.run(Thread.java:748)
+Caused by: java.util.ServiceConfigurationError: Error instantiating :org.springframework.data.gemfire.repository.cdi.GemfireRepositoryExtension
+	at org.jboss.weld.util.ServiceLoader.createInstance(ServiceLoader.java:315)
+	at org.jboss.weld.util.ServiceLoader.prepareInstance(ServiceLoader.java:247)
+	at org.jboss.weld.util.ServiceLoader.loadService(ServiceLoader.java:215)
+	at org.jboss.weld.util.ServiceLoader.loadServiceFile(ServiceLoader.java:185)
+	at org.jboss.weld.util.ServiceLoader.reload(ServiceLoader.java:165)
+	at org.jboss.weld.util.ServiceLoader.iterator(ServiceLoader.java:289)
+	at com.ibm.ws.cdi.impl.weld.WebSphereCDIDeploymentImpl.getExtensions(WebSphereCDIDeploymentImpl.java:469)
+	at com.ibm.ws.cdi.impl.CDIContainerImpl.startInitialization(CDIContainerImpl.java:144)
+	at com.ibm.ws.cdi.liberty.CDIRuntimeImpl.applicationStarting(CDIRuntimeImpl.java:453)
+	at com.ibm.ws.container.service.state.internal.ApplicationStateManager.fireStarting(ApplicationStateManager.java:51)
+	... 13 more
+Caused by: java.lang.ExceptionInInitializerError
+	at sun.reflect.NativeConstructorAccessorImpl.newInstance0(Native Method)
+	at sun.reflect.NativeConstructorAccessorImpl.newInstance(NativeConstructorAccessorImpl.java:62)
+	at sun.reflect.DelegatingConstructorAccessorImpl.newInstance(DelegatingConstructorAccessorImpl.java:45)
+	at java.lang.reflect.Constructor.newInstance(Constructor.java:423)
+	at org.jboss.weld.util.ServiceLoader.createInstance(ServiceLoader.java:313)
+	... 22 more
+Caused by: org.apache.logging.log4j.LoggingException: log4j-slf4j-impl cannot be present with log4j-to-slf4j
+	at org.apache.logging.slf4j.Log4jLoggerFactory.validateContext(Log4jLoggerFactory.java:49)
+	at org.apache.logging.slf4j.Log4jLoggerFactory.newLogger(Log4jLoggerFactory.java:39)
+	at org.apache.logging.slf4j.Log4jLoggerFactory.newLogger(Log4jLoggerFactory.java:30)
+	at org.apache.logging.log4j.spi.AbstractLoggerAdapter.getLogger(AbstractLoggerAdapter.java:54)
+	at org.apache.logging.slf4j.Log4jLoggerFactory.getLogger(Log4jLoggerFactory.java:30)
+	at org.slf4j.LoggerFactory.getLogger(LoggerFactory.java:358)
+	at org.slf4j.LoggerFactory.getLogger(LoggerFactory.java:383)
+	at org.springframework.data.repository.cdi.CdiRepositoryExtensionSupport.<clinit>(CdiRepositoryExtensionSupport.java:54)
+	... 27 more
+```
+I tried these things:
+
+- Remove logging jars from the ear
+- Remove just the log4j-slf4j-impl-2.12.1.jar from the ear
+- Remove just the log4j-to-slf4j-2.13.2.jar from the war
+- Remove all logging jars from the war
+
+### Remove logging jars from the ear
+
+No Geode logging appeared with this change.
+
+It also caused:
+
+```
+Caused by: java.lang.NoClassDefFoundError: Could not initialize class org.apache.geode.internal.cache.GemFireCacheImpl
+	at org.apache.geode.cache.client.ClientCacheFactory.getInternalClientCache(ClientCacheFactory.java:221) ~[geode-core-1.12.0.jar:na]
+	at org.apache.geode.cache.client.ClientCacheFactory.getAnyInstance(ClientCacheFactory.java:668) ~[geode-core-1.12.0.jar:na]
+	at org.springframework.data.gemfire.util.CacheUtils.getClientCache(CacheUtils.java:165) ~[spring-data-geode-2.3.0.RELEASE.jar:2.3.0.RELEASE]
+	at org.springframework.data.gemfire.util.CacheUtils.resolveGemFireCache(CacheUtils.java:173) ~[spring-data-geode-2.3.0.RELEASE.jar:2.3.0.RELEASE]
+	at org.springframework.geode.boot.autoconfigure.RegionTemplateAutoConfiguration.handlePrematureCacheCreation(RegionTemplateAutoConfiguration.java:269) ~[spring-geode-autoconfigure-1.3.0.RELEASE.jar:1.3.0.RELEASE]
+	at org.springframework.geode.boot.autoconfigure.RegionTemplateAutoConfiguration.regionTemplateBeanPostProcessor(RegionTemplateAutoConfiguration.java:222) ~[spring-geode-autoconfigure-1.3.0.RELEASE.jar:1.3.0.RELEASE]
+	at org.springframework.geode.boot.autoconfigure.RegionTemplateAutoConfiguration$$EnhancerBySpringCGLIB$$5fe09191.CGLIB$regionTemplateBeanPostProcessor$1(<generated>) ~[spring-geode-autoconfigure-1.3.0.RELEASE.jar:1.3.0.RELEASE]
+	at org.springframework.geode.boot.autoconfigure.RegionTemplateAutoConfiguration$$EnhancerBySpringCGLIB$$5fe09191$$FastClassBySpringCGLIB$$a818a27c.invoke(<generated>) ~[spring-geode-autoconfigure-1.3.0.RELEASE.jar:1.3.0.RELEASE]
+	at org.springframework.cglib.proxy.MethodProxy.invokeSuper(MethodProxy.java:244) ~[spring-core-5.2.6.RELEASE.jar:5.2.6.RELEASE]
+	at org.springframework.context.annotation.ConfigurationClassEnhancer$BeanMethodInterceptor.intercept(ConfigurationClassEnhancer.java:331) ~[spring-context-5.2.6.RELEASE.jar:5.2.6.RELEASE]
+	at org.springframework.geode.boot.autoconfigure.RegionTemplateAutoConfiguration$$EnhancerBySpringCGLIB$$5fe09191.regionTemplateBeanPostProcessor(<generated>) ~[spring-geode-autoconfigure-1.3.0.RELEASE.jar:1.3.0.RELEASE]
+```
+### Remove just the log4j-slf4j-impl-2.12.1.jar from the ear:
+
+This caused:
+
+```
+Caused by: java.lang.ClassCastException: org.apache.logging.slf4j.SLF4JLogger cannot be cast to org.apache.logging.log4j.core.Logger
+	at org.apache.geode.logging.log4j.internal.impl.Log4jLoggingProvider.getRootLoggerContext(Log4jLoggingProvider.java:105)
+	at org.apache.geode.logging.log4j.internal.impl.Log4jLoggingProvider.getConfiguration(Log4jLoggingProvider.java:109)
+	at org.apache.geode.logging.log4j.internal.impl.Log4jLoggingProvider.isUsingGemFireDefaultConfig(Log4jLoggingProvider.java:94)
+	at org.apache.geode.logging.log4j.internal.impl.Log4jLoggingProvider.shouldUpdateLogLevels(Log4jLoggingProvider.java:143)
+	at org.apache.geode.logging.log4j.internal.impl.Log4jLoggingProvider.configure(Log4jLoggingProvider.java:121)
+	at org.apache.geode.logging.internal.Configuration.configChanged(Configuration.java:143)
+	at org.apache.geode.logging.internal.Configuration.initialize(Configuration.java:132)
+	at org.apache.geode.logging.internal.LoggingSession.createSession(LoggingSession.java:69)
+	at org.apache.geode.distributed.internal.InternalDistributedSystem.initialize(InternalDistributedSystem.java:704)
+	at org.apache.geode.distributed.internal.InternalDistributedSystem.access$200(InternalDistributedSystem.java:135)
+	at org.apache.geode.distributed.internal.InternalDistributedSystem$Builder.build(InternalDistributedSystem.java:3036)
+	at org.apache.geode.distributed.internal.InternalDistributedSystem.connectInternal(InternalDistributedSystem.java:290)
+	at org.apache.geode.distributed.internal.InternalDistributedSystem.connectInternal(InternalDistributedSystem.java:216)
+	at org.apache.geode.cache.client.ClientCacheFactory.connectInternalDistributedSystem(ClientCacheFactory.java:280)
+	at org.apache.geode.cache.client.ClientCacheFactory.basicCreate(ClientCacheFactory.java:250)
+	at org.apache.geode.cache.client.ClientCacheFactory.create(ClientCacheFactory.java:216)
+	at org.springframework.data.gemfire.client.ClientCacheFactoryBean.createCache(ClientCacheFactoryBean.java:397)
+	at org.springframework.data.gemfire.CacheFactoryBean.resolveCache(CacheFactoryBean.java:321)
+	at org.springframework.data.gemfire.CacheFactoryBean.init(CacheFactoryBean.java:267)
+```
+### Remove just the log4j-to-slf4j-2.13.2.jar from the war:
+
+This caused:
+
+```
+[8/12/20 21:57:03:136 UTC] 00000316 com.ibm.ws.logging.internal.impl.IncidentImpl                I FFDC1015I: An FFDC Incident has been created: "java.lang.IllegalArgumentException: LoggerFactory is not a Logback LoggerContext but Logback is on the classpath. Either remove Logback or the competing implementation (class org.apache.logging.slf4j.Log4jLoggerFactory loaded from file:/opt/IBM/WebSphere/Liberty/usr/servers/defaultServer/apps/expanded/jta-websphere-liberty.ear/lib/log4j-slf4j-impl-2.12.1.jar). If you are using WebLogic you will need to add 'org.slf4j' to prefer-application-packages in WEB-INF/weblogic.xml: org.apache.logging.slf4j.Log4jLoggerFactory com.ibm.ws.webcontainer.osgi.DynamicVirtualHost startWebApp" at ffdc_20.08.12_21.57.03.0.log
+```
+### Remove all logging jars from the war:
+
+This worked, but it only shows Geode log messages and not SB log messages.
+
+## Product geode-jca-1.12.0.rar file
+The contents of the `ra.xml` in the `geode-jca-1.12.0.rar` contained in the Geode product tree is not formatted correctly.
+
+That rar file looks like:
+
+```
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Licensed to the Apache Software Foundation (ASF) under one or more
+  contributor license agreements.  See the NOTICE file distributed with
+  this work for additional information regarding copyright ownership.
+  The ASF licenses this file to You under the Apache License, Version 2.0
+  (the "License"); you may not use this file except in compliance with
+  the License.  You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
+
+<!DOCTYPE connector PUBLIC '-//Sun Microsystems, Inc.//DTD Connector 1.0//EN' 'http://java.sun.com/j2ee/dtds/connector_1_0.dtd'>
+
+<connector>
+    <display-name>GFE JCA Adaptor</display-name>
+    <vendor-name></vendor-name>
+    <spec-version>1.5</spec-version>
+    <eis-type>GFE JCA</eis-type>
+    <version>1.5</version>
+    <resourceadapter>
+        <managedconnectionfactory-class>org.apache.geode.internal.ra.spi.JCAManagedConnectionFactory</managedconnectionfactory-class>
+                <config-property>
+                    <config-property-name>ProductName</config-property-name>
+                    <config-property-type>java.lang.String</config-property-type>
+                    <config-property-value>GemFire</config-property-value>
+                </config-property>
+                <config-property>
+                    <config-property-name>UserName</config-property-name>
+                    <config-property-type>java.lang.String</config-property-type>
+                    <config-property-value/>
+                </config-property>
+                <config-property>
+                    <config-property-name>Version</config-property-name>
+                    <config-property-type>java.lang.String</config-property-type>
+                    <config-property-value>8.0</config-property-value>
+                </config-property>
+        
+        <connectionfactory-interface>org.apache.geode.ra.GFConnectionFactory</connectionfactory-interface>
+        <connectionfactory-impl-class>org.apache.geode.internal.ra.GFConnectionFactoryImpl</connectionfactory-impl-class>
+        <connection-interface>org.apache.geode.ra.GFConnection</connection-interface>
+        <connection-impl-class>org.apache.geode.internal.ra.GFConnectionImpl</connection-impl-class>
+        <transaction-support>LocalTransaction</transaction-support>
+        <reauthentication-support>false</reauthentication-support> 
+    </resourceadapter>
+</connector>
+```
+It produced this exception:
+
+```
+[ERROR   ] CWWKZ0114E: Application jta-websphere-liberty encountered an error when accessing the contents of module /geode-jca-9.10.2.rar of type connector: com.ibm.wsspi.adaptable.module.UnableToAdaptException: javax.xml.bind.UnmarshalException
+ - with linked exception:
+[org.xml.sax.SAXParseExceptionpublicId: -//Sun Microsystems, Inc.//DTD Connector 1.0//EN; systemId: http://www.oracle.com/webfolder/technetwork/jsc/j2ee/dtds/connector_1_0.dtd; lineNumber: 1; columnNumber: 1; The markup declarations contained or pointed to by the document type declaration must be well-formed.]
+	at com.ibm.ws.jca.internal.ConnectorAdapter.adapt(ConnectorAdapter.java:107)
+	at [internal classes]
+Caused by: javax.xml.bind.UnmarshalException
+ - with linked exception:
+[org.xml.sax.SAXParseExceptionpublicId: -//Sun Microsystems, Inc.//DTD Connector 1.0//EN; systemId: http://www.oracle.com/webfolder/technetwork/jsc/j2ee/dtds/connector_1_0.dtd; lineNumber: 1; columnNumber: 1; The markup declarations contained or pointed to by the document type declaration must be well-formed.]
+	at javax.xml.bind.helpers.AbstractUnmarshallerImpl.createUnmarshalException(AbstractUnmarshallerImpl.java:335)
+	at com.sun.xml.internal.bind.v2.runtime.unmarshaller.UnmarshallerImpl.createUnmarshalException(UnmarshallerImpl.java:563)
+	at com.sun.xml.internal.bind.v2.runtime.unmarshaller.UnmarshallerImpl.unmarshal0(UnmarshallerImpl.java:249)
+	at com.sun.xml.internal.bind.v2.runtime.unmarshaller.UnmarshallerImpl.unmarshal(UnmarshallerImpl.java:214)
+	at javax.xml.bind.helpers.AbstractUnmarshallerImpl.unmarshal(AbstractUnmarshallerImpl.java:140)
+	at javax.xml.bind.helpers.AbstractUnmarshallerImpl.unmarshal(AbstractUnmarshallerImpl.java:123)
+	at com.ibm.ws.jca.utils.metagen.DeploymentDescriptorParser.parseResourceAdapterXml(DeploymentDescriptorParser.java:178)
+	... 1 more
+Caused by: org.xml.sax.SAXParseExceptionpublicId: -//Sun Microsystems, Inc.//DTD Connector 1.0//EN; systemId: http://www.oracle.com/webfolder/technetwork/jsc/j2ee/dtds/connector_1_0.dtd; lineNumber: 1; columnNumber: 1; The markup declarations contained or pointed to by the document type declaration must be well-formed.
+	at com.sun.org.apache.xerces.internal.util.ErrorHandlerWrapper.createSAXParseException(ErrorHandlerWrapper.java:203)
+	at com.sun.org.apache.xerces.internal.util.ErrorHandlerWrapper.fatalError(ErrorHandlerWrapper.java:177)
+	at com.sun.org.apache.xerces.internal.impl.XMLErrorReporter.reportError(XMLErrorReporter.java:400)
+	at com.sun.org.apache.xerces.internal.impl.XMLErrorReporter.reportError(XMLErrorReporter.java:327)
+	at com.sun.org.apache.xerces.internal.impl.XMLScanner.reportFatalError(XMLScanner.java:1473)
+	at com.sun.org.apache.xerces.internal.impl.XMLDTDScannerImpl.scanDecls(XMLDTDScannerImpl.java:2070)
+	at com.sun.org.apache.xerces.internal.impl.XMLDTDScannerImpl.scanDTDExternalSubset(XMLDTDScannerImpl.java:307)
+	at com.sun.org.apache.xerces.internal.impl.XMLDocumentScannerImpl$DTDDriver.dispatch(XMLDocumentScannerImpl.java:1174)
+	at com.sun.org.apache.xerces.internal.impl.XMLDocumentScannerImpl$DTDDriver.next(XMLDocumentScannerImpl.java:1045)
+	at com.sun.org.apache.xerces.internal.impl.XMLDocumentScannerImpl$PrologDriver.next(XMLDocumentScannerImpl.java:959)
+	at com.sun.org.apache.xerces.internal.impl.XMLDocumentScannerImpl.next(XMLDocumentScannerImpl.java:602)
+	at com.sun.org.apache.xerces.internal.impl.XMLNSDocumentScannerImpl.next(XMLNSDocumentScannerImpl.java:112)
+	at com.sun.org.apache.xerces.internal.impl.XMLDocumentFragmentScannerImpl.scanDocument(XMLDocumentFragmentScannerImpl.java:505)
+	at com.sun.org.apache.xerces.internal.parsers.XML11Configuration.parse(XML11Configuration.java:842)
+	at com.sun.org.apache.xerces.internal.parsers.XML11Configuration.parse(XML11Configuration.java:771)
+	at com.sun.org.apache.xerces.internal.parsers.XMLParser.parse(XMLParser.java:141)
+	at com.sun.org.apache.xerces.internal.parsers.AbstractSAXParser.parse(AbstractSAXParser.java:1213)
+	at com.sun.org.apache.xerces.internal.jaxp.SAXParserImpl$JAXPSAXParser.parse(SAXParserImpl.java:643)
+	at org.xml.sax.helpers.XMLFilterImpl.parse(XMLFilterImpl.java:357)
+	at com.sun.xml.internal.bind.v2.runtime.unmarshaller.UnmarshallerImpl.unmarshal0(UnmarshallerImpl.java:243)
+	... 5 more
+```
