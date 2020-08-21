@@ -1,0 +1,5 @@
+# Connect to gfsh
+connect
+
+# Shutdown Servers and Locator
+shutdown --include-locators=true

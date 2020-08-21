@@ -1,0 +1,22 @@
+# Start locator
+start locator --name=locator
+
+# Set screen width
+set variable --name=APP_RESULT_VIEWER --value=any
+
+# Configure PDX
+configure pdx --read-serialized=true
+
+# Start Servers
+start server --name=server-1 --server-port=0 --initial-heap=1g --max-heap=1g --statistic-archive-file=cacheserver.gfs --J=-Dgemfire.conserve-sockets=false --J=-Dgemfire.log-file=cacheserver.log
+start server --name=server-2 --server-port=0 --initial-heap=1g --max-heap=1g --statistic-archive-file=cacheserver.gfs --J=-Dgemfire.conserve-sockets=false --J=-Dgemfire.log-file=cacheserver.log
+start server --name=server-3 --server-port=0 --initial-heap=1g --max-heap=1g --statistic-archive-file=cacheserver.gfs --J=-Dgemfire.conserve-sockets=false --J=-Dgemfire.log-file=cacheserver.log
+
+# List Members
+list members
+
+# Create Region
+create region --name=Trades --type=PARTITION_REDUNDANT
+
+# List Regions
+list regions

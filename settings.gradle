@@ -1,0 +1,4 @@
+rootProject.name = 'jta-websphere-liberty-base'
+
+include 'jta-websphere-liberty'
+include 'objectfactory'
