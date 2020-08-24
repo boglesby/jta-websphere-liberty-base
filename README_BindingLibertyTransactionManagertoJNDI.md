@@ -31,7 +31,7 @@ Then add these elements in the `server.xml` file:
   <fileset dir="/path/to/lib" includes="objectfactory-0.0.1-SNAPSHOT.jar"/>
 </library>
 
-<jndiObjectFactory id="objectFactory" libraryRef="objectFactoryLib" className="example.jta.jndi.TransactionManagerObjectFactory" objectClassName="java.util.Properties"/>
+<jndiObjectFactory id="objectFactory" libraryRef="objectFactoryLib" className="example.jta.jndi.TransactionManagerObjectFactory" objectClassName="javax.transaction.TransactionManager"/>
 
 <jndiReferenceEntry id="refEntry" jndiName="javax.transaction.TransactionManager" factoryRef="objectFactory"/>
 ```
