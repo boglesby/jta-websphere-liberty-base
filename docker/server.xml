@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?><server description="new server">
+
+  <featureManager>
+    <feature>webProfile-8.0</feature>
+    <feature>jca-1.7</feature>
+    <feature>jndi-1.0</feature>
+  </featureManager>
+
+  <httpEndpoint id="defaultHttpEndpoint" host="*" httpPort="9080" httpsPort="9443"/>
+
+  <applicationManager autoExpand="true"/>
+
+  <transaction recoverOnStartup="true" waitForRecovery="false" acceptHeuristicHazard="true" heuristicRetryInterval="0" heuristicRetryWait="0" lpsHeuristicCompletion="ROLLBACK"/>
+
+  <library id="H2JDBCLib">
+    <fileset dir="/config/apps" includes="h2-1.4.200.jar"/>
+  </library>
+
+  <dataSource id="h2test" jndiName="jdbc/h2test" type="javax.sql.XADataSource">
+    <jdbcDriver 
+      javax.sql.XADataSource="org.h2.jdbcx.JdbcDataSource"
+      javax.sql.ConnectionPoolDataSource="org.h2.jdbcx.JdbcDataSource"
+      javax.sql.DataSource="org.h2.jdbcx.JdbcDataSource"
+      libraryRef="H2JDBCLib"/>
+    <properties URL="jdbc:h2:mem:testdb"/>
+  </dataSource>
+
+  <application location="/config/apps/jta-websphere-liberty.ear" name="jta-websphere-liberty" id="jta-websphere-liberty">
+    <resourceAdapter id="geode-jca-9.10.2" alias="gemfireJCA"/> 
+  </application>
+
+  <connectionFactory jndiName="gfe/jca" id="gemfire-jca">
+    <properties.jta-websphere-liberty.gemfireJCA ProductName="GemFire" UserName="" Version="8.0"/>
+  </connectionFactory>
+
+  <logging traceSpecification="Transaction=all:WAS.j2c=all:com.ibm.ws.uow*=all:com.ibm.ejs*=all:com.ibm.tx*=all" traceFileName="trace_ws.log" maxFileSize="20" maxFiles="10" traceFormat="BASIC"/>
+
+</server>
